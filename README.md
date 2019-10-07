@@ -1,4 +1,7 @@
 # GNOME Run With PRIME
+### GNOME Extensions Link
+https://extensions.gnome.org/extension/2203/gnome-run-with-prime/
+
 Executes selected application with the new nVidia PRIME environment variables.
 ### Credit to LaurentTreguier for the original Bumblebee Version
 https://github.com/LaurentTreguier/gnome-optirun
