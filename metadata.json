@@ -1,0 +1,1 @@
+{"name": "GNOME Run With PRIME", "description": "Executes selected application with the new nVidia PRIME environment variables.", "uuid": "GNOME_Run_With_PRIME@floturcocantsee.daguerro.net", "shell-version": ["3.28.4","3.30","3.32","3.34"]}
