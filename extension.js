@@ -8,9 +8,11 @@ const Util = imports.misc.util;
 const EXTENSION_NAME = "GNOME_Run_With_PRIME";
 const EXTENSION_AUTHOR = "floturcocantsee.daguerro.net";
 const DATA_DIRECTORIES = [
-    "/usr", GLib.get_home_dir() + "/.local",
-    "/var/lib/flatpak/exports",
-    GLib.get_home_dir() + "/.local/share/flatpak"
+    "/usr/share/applications/",
+    GLib.get_home_dir() + "/.local/share/applications/",
+    "/var/lib/flatpak/exports/share/applications/",
+    GLib.get_home_dir() + "/.local/share/flatpak/share/applications/",
+    "/var/lib/snapd/desktop/applications/"
 ];
 
 let Aim = imports.ui.appDisplay.AppIconMenu;
@@ -27,13 +29,7 @@ function enable() {
         this.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(), _getNewWindowIndex(this) + i);
         ++i;
 
-        let primeFile = [
-            GLib.get_user_data_dir(),
-            "gnome-shell",
-            "extensions",
-            EXTENSION_NAME + "@" + EXTENSION_AUTHOR,
-            "prime"
-        ].join("/");
+        let primeFile = `${GLib.get_home_dir()}/.local/share/gnome-shell/extensions/${EXTENSION_NAME}@${EXTENSION_AUTHOR}/prime`
 
         _addLauncher(this, "Run With PRIME", primeFile, i);
         ++i;
@@ -53,8 +49,14 @@ function _addLauncher(self, name, command, i) {
             self._source.animateLaunch();
         }
 
-        Util.spawnApp([command, _getCommand(self._source.app.get_id())]);
-        self.emit("activate-window", null);
+        try {
+            let commandArgs = String(_getCommand(self._source.app.get_id()))
+            Util.trySpawn([command, commandArgs]);
+            self.emit("activate-window", null);
+        } catch (error) {
+            log(error);
+        }
+        
     }));
 }
 
@@ -71,7 +73,12 @@ function _getNewWindowIndex(self) {
 function _getCommand(file) {
     for (let i in DATA_DIRECTORIES) {
         try {
-            let content = GLib.file_get_contents(DATA_DIRECTORIES[i] + "/share/applications/" + file)[1];
+            let content = GLib.file_get_contents(DATA_DIRECTORIES[i] + file)[1];
+
+            if (content instanceof Uint8Array) {
+                content = imports.byteArray.toString(content);
+            };
+
             let line = /Exec=.+/.exec(content)[0];
 
             return line.substr(5);
